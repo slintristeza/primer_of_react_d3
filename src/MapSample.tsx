@@ -10,6 +10,8 @@ import './MapSample.css'
 interface MapFile {
   url: string
   objectsname: string
+  latitude: number;
+  longitude: number;
 }
 
 interface MapState {
@@ -51,6 +53,7 @@ class MapSample extends Component<MapFile, MapState> {
     return d3
       .geoOrthographic()
       .scale(300)
+      .rotate([-this.props.latitude, -this.props.longitude, 0])
       .translate([width / 2, height / 2])
   }
 
