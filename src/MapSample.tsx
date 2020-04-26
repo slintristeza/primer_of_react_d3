@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import * as d3 from 'd3'
+import { GeoSphere } from 'd3';
 import * as topojson from 'topojson'
 import { Topology } from 'topojson-specification'
 import { Feature } from 'geojson'
@@ -69,6 +70,16 @@ class MapSample extends Component<MapFile, MapState> {
       feature.type === 'FeatureCollection' ? feature.features : [feature]
 
     const g = svg.append('g')
+
+    // 海の描画
+    const sphere:GeoSphere[] = [{type: 'Sphere'}];
+    const sea = g.selectAll('.sea').data(sphere);
+    sea.enter().append('path')
+      .attr('class', 'shape sea')
+      .attr('d', pathGenerator)
+      .style('fill', 'blue')
+      .style('fill-opacity', 0.2);
+
     const item = g.selectAll('.item').data(features)
 
     // 存在しないデータの DOM 要素を削除する。
