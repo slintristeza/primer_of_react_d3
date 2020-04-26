@@ -9,6 +9,8 @@ const App: React.FC = () => {
       <MapSample
         url="ne_110m_admin_0_countries_topo_0.50.json"
         objectsname="countries"
+        latitude={139.74946157054467}
+        longitude={90}
       />
     </div>
   )

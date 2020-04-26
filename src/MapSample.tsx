@@ -10,8 +10,8 @@ import './MapSample.css'
 interface MapFile {
   url: string
   objectsname: string
-  latitude: number;
-  longitude: number;
+  latitude: number
+  longitude: number
 }
 
 interface MapState {
@@ -103,6 +103,34 @@ class MapSample extends Component<MapFile, MapState> {
       .style('stroke-width', () => {
         return 0.1
       })
+
+    const tokyo: [number, number] = [139.7494, 35.6869]
+    const london: [number, number] = [0.1278, 51.5074]
+
+    const lines: GeoJSON.LineString[] = [
+      { type: 'LineString', coordinates: [tokyo, london] },
+    ]
+    const line = g.selectAll('.line').data(lines)
+    line
+      .enter()
+      .append('path')
+      .attr('class', 'shape line')
+      .attr('d', pathGenerator)
+      .style('fill', 'none')
+      .style('stroke', 'red')
+      .style('stroke-width', 5)
+
+    const points: GeoJSON.Point[] = [
+      { type: 'Point', coordinates: tokyo },
+      { type: 'Point', coordinates: london },
+    ]
+    const point = g.selectAll('.point').data(points)
+    point
+      .enter()
+      .append('path')
+      .attr('class', 'shape point')
+      .attr('d', pathGenerator.pointRadius(10))
+      .style('fill', 'red')
 
     const drag = d3
       .drag<SVGSVGElement, Feature, SubjectPosition>()
