@@ -72,8 +72,7 @@ class MapSample extends Component<MapFile, MapState> {
     const item = g.selectAll('.item').data(features)
 
     // 存在しないデータの DOM 要素を削除する。
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    item.exit().remove
+    item.exit().remove();
 
     // 指定した地図データを元に地図を描画する。
     item
