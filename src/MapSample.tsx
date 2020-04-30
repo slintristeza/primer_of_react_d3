@@ -23,6 +23,7 @@ interface MapState {
     | {
         status: 'Success'
         topology: Topology
+        data: d3.DSVRowArray<string>
       }
     | {
         status: 'Failure'
@@ -116,7 +117,7 @@ class MapSample extends Component<MapFile, MapState> {
         return 0.1
       })
 
-/*
+    /*
     const tokyo: [number, number] = [139.7494, 35.6869]
     const london: [number, number] = [0.1278, 51.5074]
 
@@ -161,6 +162,8 @@ class MapSample extends Component<MapFile, MapState> {
       .scaleExtent([1, 24])
       .on('zoom', this.onZoomed)
     svg.call(zoom)
+    
+    this.barChart(svg, features)
   }
 
   getCountryColor = (
@@ -170,6 +173,76 @@ class MapSample extends Component<MapFile, MapState> {
     return d.properties && scale
       ? d3.interpolateReds(scale(+d.properties.POP_EST))
       : 'gary'
+  }
+
+  barChart = (
+    svg: d3.Selection<SVGSVGElement, Feature, null, undefined>,
+    features: Feature[]
+  ) => {
+    let width = 0
+    let height = 0
+    if (this.svg.current) {
+      width = this.svg.current.clientWidth
+      height = this.svg.current.clientHeight
+    }
+    const barHeight = height / 2
+
+    const x = d3.scaleBand().rangeRound([0, width]).padding(0.1)
+    const y = d3.scaleSqrt().range([height, barHeight])
+
+    // GDPの値でソート
+    const sortedFeature = features.sort((a, b) => {
+      return a.properties &&
+        b.properties &&
+        +a.properties.GDP_MD_EST <= +b.properties.GDP_MD_EST
+        ? 1
+        : -1
+    })
+
+    // X軸の値を設定
+    x.domain(
+      sortedFeature.map((d) => {
+        return d.properties ? d.properties.NAME : null
+      })
+    )
+    // Y軸の値の設定
+    const max = d3.max(sortedFeature, (f) => {
+      return f.properties ? +f.properties.GDP_MD_EST : 0
+    })
+    y.domain([0, max || 0])
+
+    // Y軸の要素を作成
+    var yAxis = d3.axisLeft(y).scale(y).ticks(10)
+    const barArea = svg.append('g').attr('transform', 'translate(0, -10)')
+    barArea
+      .append('g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate(70, 0)')
+      .call(yAxis)
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', 6)
+      .attr('dy', '.71em')
+      .style('text-anchor', 'end')
+      .text('Value ($)')
+
+    // 棒グラフを作成
+    const bar = barArea.selectAll('.bar').data(sortedFeature)
+    bar
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('fill', 'steelblue')
+      .attr('x', (d) => {
+        return d.properties ? x(d.properties.NAME) || null : null
+      }) // 型エラー対応；undefinedだったらnullを返却する
+      .attr('y', (d) => {
+        return d.properties ? y(+d.properties.GDP_MD_EST) : barHeight
+      })
+      .attr('width', x.bandwidth())
+      .attr('height', (d) => {
+        return height - (d.properties ? y(+d.properties.GDP_MD_EST) : barHeight)
+      })
   }
 
   onDraged = (
@@ -194,12 +267,18 @@ class MapSample extends Component<MapFile, MapState> {
 
   componentDidMount() {
     console.log('componentDidMount')
-    d3.json<Topology>(this.props.mapurl)
-      .then((topology: Topology) => {
+    // 地図データを取得する。
+    // d3.jsはFetch APIを使用している。
+    Promise.all([
+      d3.json<Topology>(this.props.mapurl),
+      d3.csv(this.props.dataurl),
+    ])
+      .then((values) => {
         this.setState({
           mapdata: {
             status: 'Success',
-            topology: topology,
+            topology: values[0],
+            data: values[1],
           },
         })
       })
