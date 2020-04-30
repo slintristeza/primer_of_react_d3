@@ -1,20 +1,19 @@
 import React from 'react'
 import './App.css'
 
-import MapSample from './MapSample'
+import MapSample from './MapSample3DArc'
 
 const App: React.FC = () => {
   return (
     <div>
-      <MapSample
-        mapurl="ne_110m_admin_0_countries_topo_0.50.json"
-        dataurl="world_population.csv"
+       <MapSample
+        mapurl="ne_10m_admin_0_countries_topo.json"
+        dataurl="ne_50m_populated_places_topo.json"
         objectsname="countries"
         latitude={139}
-        longitude={35}
-      />
+        longitude={35}></MapSample>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
