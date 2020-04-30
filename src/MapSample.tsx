@@ -8,8 +8,8 @@ import { Feature } from 'geojson'
 import './MapSample.css'
 
 interface MapFile {
-  mapurl: string;
-  dataurl: string;
+  mapurl: string
+  dataurl: string
   objectsname: string
   latitude: number
   longitude: number
@@ -65,13 +65,22 @@ class MapSample extends Component<MapFile, MapState> {
 
     // 取得した地図データを DOM 要素に設定する。
     const projection = this.getProjection()
-    const pathGenerator = d3.geoPath().projection(projection)
+    const pathGenerator = d3
+      .geoPath<SVGPathElement, GeoPermissibleObjects>()
+      .projection(projection)
     const feature = topojson.feature(
       mapData,
       mapData.objects[this.props.objectsname]
     )
     const features: Feature[] =
       feature.type === 'FeatureCollection' ? feature.features : [feature]
+    const [popMin, popMax] = d3.extent(features, (f) => {
+      return f.properties ? +f.properties.POP_EST : undefined
+    })
+    const popScale =
+      popMin && popMax
+        ? d3.scaleSqrt().domain([popMin, popMax]).range([0, 1])
+        : undefined
 
     const g = svg.append('g')
 
@@ -97,9 +106,11 @@ class MapSample extends Component<MapFile, MapState> {
       .append('path')
       .attr('class', 'shape item')
       .attr('d', pathGenerator)
-      .style('fill', 'black')
+      .style('fill', (d) => {
+        return this.getCountryColor(d, popScale)
+      })
       .style('stroke', () => {
-        return 'white'
+        return 'gray'
       })
       .style('stroke-width', () => {
         return 0.1
@@ -149,6 +160,15 @@ class MapSample extends Component<MapFile, MapState> {
       .scaleExtent([1, 24])
       .on('zoom', this.onZoomed)
     svg.call(zoom)
+  }
+
+  getCountryColor = (
+    d: Feature,
+    scale?: d3.ScaleContinuousNumeric<number, number>
+  ) => {
+    return d.properties && scale
+      ? d3.interpolateReds(scale(+d.properties.POP_EST))
+      : 'gary'
   }
 
   onDraged = (
