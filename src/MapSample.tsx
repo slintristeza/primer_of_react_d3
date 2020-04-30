@@ -8,7 +8,8 @@ import { Feature } from 'geojson'
 import './MapSample.css'
 
 interface MapFile {
-  url: string
+  mapurl: string;
+  dataurl: string;
   objectsname: string
   latitude: number
   longitude: number
@@ -172,7 +173,7 @@ class MapSample extends Component<MapFile, MapState> {
 
   componentDidMount() {
     console.log('componentDidMount')
-    d3.json<Topology>(this.props.url)
+    d3.json<Topology>(this.props.mapurl)
       .then((topology: Topology) => {
         this.setState({
           mapdata: {

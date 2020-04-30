@@ -7,10 +7,11 @@ const App: React.FC = () => {
   return (
     <div>
       <MapSample
-        url="ne_110m_admin_0_countries_topo_0.50.json"
+        mapurl="ne_110m_admin_0_countries_topo_0.50.json"
+        dataurl="world_population.csv"
         objectsname="countries"
-        latitude={139.74946157054467}
-        longitude={90}
+        latitude={139}
+        longitude={35}
       />
     </div>
   )
