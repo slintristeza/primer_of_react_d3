@@ -116,6 +116,7 @@ class MapSample extends Component<MapFile, MapState> {
         return 0.1
       })
 
+/*
     const tokyo: [number, number] = [139.7494, 35.6869]
     const london: [number, number] = [0.1278, 51.5074]
 
@@ -143,7 +144,7 @@ class MapSample extends Component<MapFile, MapState> {
       .attr('class', 'shape point')
       .attr('d', pathGenerator.pointRadius(10))
       .style('fill', 'red')
-
+*/
     const drag = d3
       .drag<SVGSVGElement, Feature, SubjectPosition>()
       .subject(() => {
